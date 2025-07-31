@@ -1,10 +1,8 @@
 import {
   Controller,
   Post,
-  Body,
   Get,
   Param,
-  Patch,
   Delete,
   Req,
   Request,
@@ -28,6 +26,7 @@ export class DocumentsController {
   @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('image'))
+  @HttpCode(HttpStatus.CREATED)
   async createPost(
     @UploadedFile() image: Express.Multer.File,
     @Request() req: any,
@@ -40,6 +39,7 @@ export class DocumentsController {
 
   @UseGuards(AuthGuard)
   @Get()
+  @HttpCode(HttpStatus.OK)
   async findAll(@Req() req: any) {
     const userId = req.user.id; 
     return this.documentsService.findAllByUser(userId);
@@ -47,9 +47,19 @@ export class DocumentsController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string, @Req() req: any) {
     const userId = req.user?.id;
     return this.documentsService.findOne(id, userId);
+  }
+
+  // TODO: FALTA IMPLEMENTAR ISSO, E GERAR UM PDF COM TODOS OS DADOS: IMAGE, TEXT, INTERACTIONS
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  async downloadDocument(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.id;
+    return this.documentsService.download(id, userId);
   }
 
   @UseGuards(AuthGuard)
@@ -59,6 +69,7 @@ export class DocumentsController {
     await this.documentsService.delete(id);
     return;
   }
+
 
   
 }

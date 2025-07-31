@@ -71,6 +71,10 @@ export class DocumentsService {
         }
     }
 
+    async download(id: string, userId: string) {
+
+    }
+
     async delete(id: string): Promise<void> {
         try {
             const existingDocument = await this.prisma.document.findUnique({ where: { id } });

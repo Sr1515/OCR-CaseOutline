@@ -11,9 +11,12 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express'; // **IMPORTANTE** importar de express!
 import { AuthGuard } from 'src/auth/auth.guard';
 import { DocumentsService } from './document.service';
 
@@ -53,13 +56,25 @@ export class DocumentsController {
     return this.documentsService.findOne(id, userId);
   }
 
-  // TODO: FALTA IMPLEMENTAR ISSO, E GERAR UM PDF COM TODOS OS DADOS: IMAGE, TEXT, INTERACTIONS
   @UseGuards(AuthGuard)
-  @Get(':id')
+  @Get('/download/:id')
   @HttpCode(HttpStatus.OK)
-  async downloadDocument(@Param('id') id: string, @Req() req: any) {
+  async downloadDocument(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Res() res: Response,
+  ) {
     const userId = req.user?.id;
-    return this.documentsService.download(id, userId);
+
+    const pdfBuffer = await this.documentsService.download(id, userId);
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=Download-${Date.now()}.pdf`,
+      'Content-Length': pdfBuffer.length,
+    });
+
+    return res.send(Buffer.from(pdfBuffer)); 
   }
 
   @UseGuards(AuthGuard)

@@ -1,8 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { S3Client, PutObjectCommand, HeadBucketCommand, CreateBucketCommand, PutBucketPolicyCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, HeadBucketCommand, CreateBucketCommand, PutBucketPolicyCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import { ConfigService } from '@nestjs/config';
-
 
 @Injectable()
 export class S3Service {
@@ -24,6 +23,18 @@ export class S3Service {
         });
     }
 
+    async deleteFile(key: string): Promise<void> {
+        try {
+            await this.s3.send(new DeleteObjectCommand({
+                Bucket: this.bucketName,
+                Key: key,
+            }));
+            this.logger.log(`Arquivo "${key}" deletado do bucket "${this.bucketName}".`);
+        } catch (error) {
+            this.logger.error(`Erro ao deletar arquivo "${key}":`, error);
+            throw error;
+        }
+    }
 
     async setPublicBucketPolicy(): Promise<void> {
         const policy = {
@@ -62,9 +73,19 @@ export class S3Service {
         }
     }
 
-    async uploadFile(file: Express.Multer.File): Promise<string> {
+    private getContentType(filename: string): string {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        switch (ext) {
+            case 'avif': return 'image/avif';
+            case 'png': return 'image/png';
+            case 'jpg':
+            case 'jpeg': return 'image/jpeg';
+            case 'gif': return 'image/gif';
+            default: return 'application/octet-stream';
+        }
+    }
 
-        console.log(this.bucketName)
+    async uploadFile(file: Express.Multer.File): Promise<string> {
 
         await this.createBucketIfNotExists();
 
@@ -74,7 +95,7 @@ export class S3Service {
             Bucket: this.bucketName,
             Key: key,
             Body: file.buffer,
-            ContentType: file.mimetype,
+            ContentType: this.getContentType(file.originalname),
         }));
 
         return `http://localhost:9000/${this.bucketName}/${key}`

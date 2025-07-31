@@ -16,10 +16,15 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { DocumentsService } from './document.service';
+import { OcrService } from 'src/ocr/ocr.service';
 
 @Controller('documents')
 export class DocumentsController {
-  constructor(private readonly documentsService: DocumentsService) {}
+  constructor(
+    private readonly documentsService: DocumentsService,
+    private readonly ocrService: OcrService
+
+  ) {}
 
   @UseGuards(AuthGuard)
   @Post()
@@ -28,10 +33,19 @@ export class DocumentsController {
     @UploadedFile() image: Express.Multer.File,
     @Request() req: any,
     ) {
-        return this.documentsService.create({
+        const result = await this.documentsService.create({
             image,
             userId: req.user.id,
         });
+
+        const ocrResult = await this.ocrService.runOcr(image.buffer);
+
+        return {
+            message: 'Documento criado com sucesso',
+            document: result,
+            ocrText: ocrResult,
+        };
+
     }
 
   @UseGuards(AuthGuard)

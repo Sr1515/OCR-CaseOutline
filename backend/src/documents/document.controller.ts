@@ -12,11 +12,10 @@ import {
   HttpCode,
   HttpStatus,
   Res,
-  UnauthorizedException,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express'; // **IMPORTANTE** importar de express!
+import { Response } from 'express'; 
 import { AuthGuard } from 'src/auth/auth.guard';
 import { DocumentsService } from './document.service';
 

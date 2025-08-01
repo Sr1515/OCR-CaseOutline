@@ -23,11 +23,7 @@ export class LlmController {
 
   @Post(':documentId')
   @HttpCode(HttpStatus.CREATED)
-  async askQuestion(
-    @Param('documentId') documentId: string,
-    @Req() req: any,
-  ) {
-
+  async askQuestion(@Param('documentId') documentId: string, @Req() req: any) {
     const userId = req.user?.id;
 
     if (!userId) {
@@ -41,11 +37,14 @@ export class LlmController {
 
     const doc = await this.documentsService.findOne(documentId, userId);
 
-    if (!doc || !doc.text) {
+    if (!doc || !doc.document?.text) {
       throw new NotFoundException('Documento ou texto não encontrado');
     }
 
-    const answer = await this.llmService.explainText(doc.text, question);
+    const answer = await this.llmService.explainText(
+      doc.document.text,
+      question,
+    );
 
     const interaction = await this.llmService.createInteraction(
       documentId,

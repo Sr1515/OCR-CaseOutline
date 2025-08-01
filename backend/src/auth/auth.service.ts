@@ -21,7 +21,7 @@ export class AuthService {
         })
 
         if (userAlreadyExists) {
-            throw new UnauthorizedException("User already exists");
+            throw new UnauthorizedException("Usuário já existe");
         }
 
         const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -49,13 +49,13 @@ export class AuthService {
         })
 
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials')
+            throw new UnauthorizedException('credenciais inválidas')
         }
 
         const passwordMatch = await bcrypt.compare(data.password, user.password);
 
         if (!passwordMatch) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UnauthorizedException('credenciais inválidas');
         }
 
         const accessToken = await this.jwtService.signAsync({

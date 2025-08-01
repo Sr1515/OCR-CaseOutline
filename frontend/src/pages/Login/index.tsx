@@ -1,0 +1,92 @@
+import { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
+
+import { Container, ErrorMessage, FooterContainer } from "./style";
+import Input from "../../components/Input";
+
+import { AuthContext } from "../../context/AuthProvider";
+import Button from "../../components/Buttom";
+import { loginSchema, type LoginData } from "../../schemas/loginSchema";
+import Title from "../../components/Title";
+import PopupMessage from "../../components/PopupMessage";
+
+const Login = () => {
+    const [popupMensagem, setPopupMensagem] = useState<string | null>(null);
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm<LoginData>({
+        resolver: zodResolver(loginSchema)
+    });
+
+    const onSubmit = async (data: LoginData) => {
+
+        try {
+            await login(data.email, data.password);
+
+            setPopupMensagem("Bem-vindo!");
+            
+            setTimeout(() => {
+                setPopupMensagem(null);
+                navigate("/home", { replace: true });
+            }, 2000);
+
+        } catch (error) {
+            setPopupMensagem("Falha ao fazer login. Verifique suas credenciais.");
+            setTimeout(() => {
+                setPopupMensagem(null);
+            }, 3000);
+        }
+    };
+
+    return (
+        <>
+            <Container>
+
+                <Title name="Entrar" />
+
+                <div>
+                    <Input
+                        type="email"
+                        placeholder="Digite seu e-mail"
+                        {...register("email")}
+                    />
+                    {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
+                </div>
+
+                <div>
+                    <Input
+                        type="password"
+                        placeholder="Digite sua senha"
+                        {...register("password")}
+                    />
+                    {errors.password && <ErrorMessage>{errors.password.message}</ErrorMessage>}
+                </div>
+
+                <Button name="Entrar" onClick={handleSubmit(onSubmit)} color="black" backgroundColor="blue"/>
+
+                <FooterContainer>
+                    <Title name="Não tem conta?" color="white" fontSize="28px" />
+                    <Title name="Cadastre-se" color="blue" fontSize="28px" onClick={() => navigate("/signup")} />
+                </FooterContainer>
+
+            </Container>
+
+            {popupMensagem && (
+                <PopupMessage
+                    message={popupMensagem}
+                    onClose={() => setPopupMensagem(null)}
+                    duration={3000}
+                />
+            )}
+        </>
+    );
+};
+
+export default Login;

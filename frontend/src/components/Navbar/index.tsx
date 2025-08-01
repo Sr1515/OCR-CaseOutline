@@ -16,8 +16,13 @@ const NavBar: React.FC<TitleProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate(-1);
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   return (
@@ -27,7 +32,7 @@ const NavBar: React.FC<TitleProps> = ({
           name="Escanear"
           height="5rem"
           width="13rem"
-          onClick={handleBack}
+          onClick={() => handleNavigate("/home")}
         />
       </ButtonWrapper>
 
@@ -36,12 +41,17 @@ const NavBar: React.FC<TitleProps> = ({
           name="Documentos"
           height="5rem"
           width="15rem"
-          onClick={handleBack}
+          onClick={() => handleNavigate("/documents")}
         />
       </ButtonWrapper>
 
       <ButtonWrapper>
-        <Button name="Sair" height="4rem" width="10rem" onClick={handleBack} />
+        <Button
+          name="Sair"
+          height="5rem"
+          width="15rem"
+          onClick={handleLogout}
+        />
       </ButtonWrapper>
     </Container>
   );

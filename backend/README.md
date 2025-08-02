@@ -30,23 +30,15 @@
 
 ```bash
 $ npm install
-
-$ make build
-
-$ make run
 ```
 
 ## Compile and run the project
 
 ```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
+$ make build
 
-# production mode
-$ npm run start:prod
+$ make run or npm run start:dev
 ```
 
 ## Run tests

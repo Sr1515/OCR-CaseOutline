@@ -53,7 +53,7 @@ export class AuthController {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new BadRequestException('Token ausente ou malformado');
+      throw new BadRequestException('Token ausente ou mal informado');
     }
 
     const token = authHeader.split(' ')[1];

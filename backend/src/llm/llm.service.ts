@@ -28,7 +28,6 @@ export class LlmService {
   constructor(private readonly prisma: PrismaService) {}
 
   private async callGemini(text: string, question: string): Promise<string> {
-
     const body = {
       contents: [
         {
@@ -65,7 +64,6 @@ export class LlmService {
       }
 
       return content;
-      
     } catch (error) {
       this.logger.error('Erro ao chamar Gemini API:', error);
       throw new Error('Falha na comunicação com a API Gemini');
@@ -76,13 +74,22 @@ export class LlmService {
     return this.callGemini(text, question);
   }
 
-  async createInteraction(documentId: string, question: string, answer: string) {
-  return await this.prisma.interaction.create({
-    data: {
-      documentId,
-      question,  
-      answer,
-    },
-  });
-}
+  async createInteraction(
+    documentId: string,
+    question: string,
+    answer: string,
+  ) {
+    try {
+      return await this.prisma.interaction.create({
+        data: {
+          documentId,
+          question,
+          answer,
+        },
+      });
+    } catch (error) {
+      console.error('Erro ao criar interação:', error);
+      throw error;
+    }
+  }
 }

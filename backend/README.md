@@ -30,6 +30,10 @@
 
 ```bash
 $ npm install
+
+$ make build
+
+# make run
 ```
 
 ## Compile and run the project

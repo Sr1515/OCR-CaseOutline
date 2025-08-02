@@ -56,21 +56,18 @@ const Documents = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/documents/download/${documentId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/documents/download/${documentId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: "blob",
+      });
 
-      if (!response.ok) {
+      if (!response || response.status !== 200) {
         throw new Error("Erro ao baixar PDF");
       }
 
-      const blob = await response.blob();
+      const blob = new Blob([response.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
 
       const a = document.createElement("a");

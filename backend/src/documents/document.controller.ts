@@ -15,15 +15,13 @@ import {
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express'; 
+import { Response } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { DocumentsService } from './document.service';
 
 @Controller('documents')
 export class DocumentsController {
-  constructor(
-    private readonly documentsService: DocumentsService,
-  ) {}
+  constructor(private readonly documentsService: DocumentsService) {}
 
   @UseGuards(AuthGuard)
   @Post()
@@ -32,18 +30,18 @@ export class DocumentsController {
   async createPost(
     @UploadedFile() image: Express.Multer.File,
     @Request() req: any,
-    ) {
-        return await this.documentsService.create({
-            image,
-            userId: req.user.id,
-        });
+  ) {
+    return await this.documentsService.create({
+      image,
+      userId: req.user.id,
+    });
   }
 
   @UseGuards(AuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(@Req() req: any) {
-    const userId = req.user.id; 
+    const userId = req.user.id;
     return this.documentsService.findAllByUser(userId);
   }
 
@@ -73,7 +71,7 @@ export class DocumentsController {
       'Content-Length': pdfBuffer.length,
     });
 
-    return res.send(Buffer.from(pdfBuffer)); 
+    return res.send(Buffer.from(pdfBuffer));
   }
 
   @UseGuards(AuthGuard)
@@ -83,7 +81,4 @@ export class DocumentsController {
     await this.documentsService.delete(id);
     return;
   }
-
-
-  
 }

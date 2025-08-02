@@ -62,4 +62,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .environment/docker/.env.minio
 .environment/docker/.env.postgres
+.env
 /generated/prisma

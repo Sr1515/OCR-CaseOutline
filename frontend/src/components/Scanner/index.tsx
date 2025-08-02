@@ -5,6 +5,8 @@ import { HiddenInput, ScannerContainer, UploadBox } from "./style";
 import Button from "../Buttom";
 import { jwtDecode } from "jwt-decode";
 import Loading from "../ProgressBar";
+import { FaCheckCircle } from "react-icons/fa";
+import PopupMessage from "../PopupMessage";
 
 interface JwtPayload {
   sub: string;
@@ -16,6 +18,7 @@ interface JwtPayload {
 const Scanner: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [popupMensagem, setPopupMensagem] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +29,16 @@ const Scanner: React.FC = () => {
   };
 
   const handleScan = async () => {
-    if (!selectedFile) return alert("Por favor, selecione uma imagem.");
+    if (!selectedFile) {
+      setPopupMensagem("Por favor, selecione uma imagem.");
+      return;
+    }
 
     const token = localStorage.getItem("token");
-    if (!token) return alert("Usuário não autenticado.");
+    if (!token) {
+      setPopupMensagem("Usuário não autenticado.");
+      return;
+    }
 
     const decoded = jwtDecode<JwtPayload>(token);
     const userId = decoded.sub;
@@ -50,12 +59,19 @@ const Scanner: React.FC = () => {
 
       console.log("Documento criado:", response.data);
 
-      navigate("/DocumentView", {
-        state: { documentId: response.data.id, userId: response.data.userId },
-      });
+      setPopupMensagem("DOCUMENTO ESCANEADO");
+
+      setTimeout(() => {
+        navigate("/DocumentView", {
+          state: {
+            documentId: response.data.id,
+            userId: response.data.userId,
+          },
+        });
+      }, 1000);
     } catch (error) {
       console.error("Erro ao escanear imagem:", error);
-      alert("Erro ao escanear imagem. Por favor, tente novamente.");
+      setPopupMensagem("FALHA AO ESCANEAR. TENTE NOVAMENTE.");
     } finally {
       setIsLoading(false);
     }
@@ -66,9 +82,23 @@ const Scanner: React.FC = () => {
       <UploadBox>
         SELECIONE A IMAGEM PARA ESCANEAR
         <HiddenInput type="file" accept="image/*" onChange={handleFileChange} />
+        {selectedFile && (
+          <FaCheckCircle
+            style={{ color: "green", marginTop: "8px" }}
+            size={24}
+          />
+        )}
       </UploadBox>
 
       <Button onClick={handleScan} name="ESCANEAR" />
+
+      {popupMensagem && (
+        <PopupMessage
+          message={popupMensagem}
+          onClose={() => setPopupMensagem(null)}
+          duration={3000}
+        />
+      )}
 
       <Loading isLoading={isLoading} />
     </ScannerContainer>

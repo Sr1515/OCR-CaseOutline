@@ -1,10 +1,10 @@
-// pages/Documents/index.tsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, DocumentsGrid, DocumentCard, DocumentImage } from "./style";
 import NavBar from "../../components/Navbar";
 import { api } from "../../api/axios";
 import Button from "../../components/Buttom";
+import PopupMessage from "../../components/PopupMessage";
 
 interface Document {
   id: string;
@@ -17,6 +17,7 @@ interface Document {
 const Documents = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [popupMensagem, setPopupMensagem] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,9 +31,11 @@ const Documents = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+
         setDocuments(response.data);
       } catch (error) {
         console.error("Erro ao carregar documentos:", error);
+        setPopupMensagem("Erro ao carregar documentos.");
       } finally {
         setIsLoading(false);
       }
@@ -48,7 +51,7 @@ const Documents = () => {
   const handleDownloadPDF = async (documentId: string) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Usuário não autenticado.");
+      setPopupMensagem("Usuário não autenticado.");
       return;
     }
 
@@ -77,9 +80,11 @@ const Documents = () => {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      setPopupMensagem("PDF BAIXADO");
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert("Não foi possível baixar o PDF.");
+      setPopupMensagem("Erro ao baixar PDF.");
     }
   };
 
@@ -96,6 +101,14 @@ const Documents = () => {
     <Container>
       <NavBar />
       <h1>Meus Documentos</h1>
+
+      {popupMensagem && (
+        <PopupMessage
+          message={popupMensagem}
+          onClose={() => setPopupMensagem(null)}
+          duration={3000}
+        />
+      )}
 
       <DocumentsGrid>
         {documents.length === 0 && (
@@ -123,7 +136,7 @@ const Documents = () => {
               height="3rem"
               width="100%"
               backgroundColor="green"
-              onClick={() => handleDownloadPDF(document.id)} // passou o id aqui
+              onClick={() => handleDownloadPDF(document.id)}
             />
           </DocumentCard>
         ))}

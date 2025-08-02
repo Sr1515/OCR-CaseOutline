@@ -13,10 +13,8 @@ const Message: React.FC<MessageProps> = ({ text, isUser, timestamp }) => {
   });
 
   return (
-    // Troque isUser por $isUser
     <MessageContainer $isUser={isUser}>
       <div>
-        {/* Troque isUser por $isUser */}
         <MessageBubble $isUser={isUser}>{text}</MessageBubble>
         <Timestamp $isUser={isUser}>{formattedTime}</Timestamp>
       </div>

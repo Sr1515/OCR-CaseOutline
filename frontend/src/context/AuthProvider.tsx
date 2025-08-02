@@ -60,7 +60,6 @@ export function AuthProviderContext({ children }: IProps) {
       try {
         const decoded = jwtDecode<JwtPayload>(tokenStorage);
 
-        // Verifica se o token está expirado
         const isExpired = decoded.exp * 1000 < Date.now();
         if (isExpired) throw new Error("Token expirado");
 

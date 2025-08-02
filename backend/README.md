@@ -33,7 +33,7 @@ $ npm install
 
 $ make build
 
-# make run
+$ make run
 ```
 
 ## Compile and run the project

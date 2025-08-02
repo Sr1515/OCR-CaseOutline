@@ -1,42 +1,43 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
-import { Container, ErrorMessage, FooterContainer } from "./style";
+import Title from "../../components/Title";
+import { Container, FooterContainer, ErrorMessage } from "./style";
 import Input from "../../components/Input";
 
-import { AuthContext } from "../../context/AuthProvider";
-import Button from "../../components/Buttom";
-import { loginSchema, type LoginData } from "../../schemas/loginSchema";
-import Title from "../../components/Title";
 import PopupMessage from "../../components/PopupMessage";
 
-const Login = () => {
+import { api } from "../../api/axios";
+import { signUpSchema, type SignUpData } from "../../schemas/signUpSchema";
+import Button from "../../components/Buttom";
+
+const SignUp = () => {
   const [popupMensagem, setPopupMensagem] = useState<string | null>(null);
-  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<SignUpData>({
+    resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmit = async (data: LoginData) => {
+  const onSubmit = async (data: SignUpData) => {
     try {
-      await login(data.email, data.password);
+      const response = await api.post("/auth/signup", data);
 
-      setPopupMensagem("Bem-vindo!");
-
-      setTimeout(() => {
-        setPopupMensagem(null);
-        navigate("/home", { replace: true });
-      }, 2000);
+      if (response.status === 201) {
+        setPopupMensagem("Cadastro realizado com sucesso!");
+        setTimeout(() => {
+          setPopupMensagem(null);
+          navigate("/");
+        }, 2500);
+      }
     } catch (error) {
-      setPopupMensagem("Falha ao fazer login. Verifique suas credenciais.");
+      setPopupMensagem("Falha ao cadastrar. Tente novamente!");
       setTimeout(() => {
         setPopupMensagem(null);
       }, 3000);
@@ -46,7 +47,7 @@ const Login = () => {
   return (
     <>
       <Container>
-        <Title name="Entrar" />
+        <Title name="Cadastrar" />
 
         <div>
           <Input
@@ -55,6 +56,17 @@ const Login = () => {
             {...register("email")}
           />
           {errors.email && <ErrorMessage>{errors.email.message}</ErrorMessage>}
+        </div>
+
+        <div>
+          <Input
+            type="text"
+            placeholder="Nome de usuário"
+            {...register("username")}
+          />
+          {errors.username && (
+            <ErrorMessage>{errors.username.message}</ErrorMessage>
+          )}
         </div>
 
         <div>
@@ -69,19 +81,20 @@ const Login = () => {
         </div>
 
         <Button
-          name="Entrar"
+          name="Cadastrar"
           onClick={handleSubmit(onSubmit)}
+          width="23rem"
           color="black"
           backgroundColor="blue"
         />
 
         <FooterContainer>
-          <Title name="Não tem conta?" color="white" fontSize="28px" />
+          <Title name="Já possui conta?" color="whitesmoke" fontSize="28px" />
           <Title
-            name="Cadastre-se"
+            name="Entrar"
             color="blue"
             fontSize="28px"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/")}
           />
         </FooterContainer>
       </Container>
@@ -97,4 +110,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
